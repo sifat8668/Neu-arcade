@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Neu Arcade</title>
+<style>
+/* ============ NEUMORPHIC THEME ============ */
+:root{
+  --bg:#e7ecf5;
+  --t:#3a416b;
+  --m:#8892b4;
+  --ac:#6c7cff;
+  --on:#ffffff;
+  --sd:rgba(163,177,198,.75);
+  --sl:#ffffff;
+  --ov:rgba(231,236,245,.62);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --r:18px;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#272b37;--t:#e8ecf9;--m:#8e97b6;--ac:#7cf0ff;--on:#06202a;
+    --sd:rgba(0,0,0,.6);--sl:rgba(255,255,255,.06);--ov:rgba(22,26,35,.62);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#272b37;--t:#e8ecf9;--m:#8e97b6;--ac:#7cf0ff;--on:#06202a;
+  --sd:rgba(0,0,0,.6);--sl:rgba(255,255,255,.06);--ov:rgba(22,26,35,.62);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;overflow:hidden;color:var(--t);
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--bg);
+  -webkit-user-select:none;user-select:none;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .6s var(--ease),color .6s var(--ease);
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 12%,rgba(120,150,255,.14),transparent 45%),
+    radial-gradient(circle at 88% 88%,rgba(255,120,200,.12),transparent 45%);
+  transition:opacity .6s var(--ease);
+}
+
+/* ---- soft surface ---- */
+.gl{
+  background:var(--bg);border:0;border-radius:var(--r);
+  box-shadow:9px 9px 22px var(--sd),-9px -9px 22px var(--sl);
+  transition:box-shadow .45s var(--ease),transform .45s var(--ease),
+             background .6s var(--ease),color .6s var(--ease);
+}
+
+/* ---- buttons ---- */
+button{
+  font:inherit;color:inherit;cursor:pointer;
+  border:0;background:var(--bg);border-radius:14px;padding:9px 16px;
+  box-shadow:5px 5px 13px var(--sd),-5px -5px 13px var(--sl);
+  transition:box-shadow .35s var(--ease),transform .3s var(--ease-spring),
+             color .35s var(--ease),background .6s var(--ease);
+}
+button:hover{box-shadow:7px 7px 18px var(--sd),-7px -7px 18px var(--sl);transform:translateY(-2px)}
+button:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+button.on{
+  color:var(--ac);
+  box-shadow:inset 4px 4px 10px var(--sd),inset -4px -4px 10px var(--sl);
+}
+button.on:hover{box-shadow:inset 6px 6px 14px var(--sd),inset -6px -6px 14px var(--sl);transform:translateY(0)}
+button:active,button.on:active{
+  box-shadow:inset 6px 6px 14px var(--sd),inset -6px -6px 14px var(--sl);
+  transform:translateY(1px) scale(.97);
+}
+button:disabled,button:disabled:hover{
+  cursor:default;transform:none;opacity:.8;
+  box-shadow:inset 4px 4px 10px var(--sd),inset -4px -4px 10px var(--sl);
+}
+
+body.np #menu,body.np #stage{visibility:hidden}
+
+/* ============ MENU ============ */
+#menu{
+  height:100%;display:flex;flex-direction:column;gap:10px;
+  padding:12px max(16px,env(safe-area-inset-right)) 12px max(16px,env(safe-area-inset-left));
+  animation:fadeIn .5s var(--ease-out) backwards;
+}
+#menu[hidden]{display:none}
+.top{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:12px 16px;border-radius:22px;
+  animation:fadeUp .55s var(--ease-out) backwards;
+}
+.top h1{
+  font-size:20px;margin:0;letter-spacing:.2px;
+  background:linear-gradient(135deg,var(--ac),#c06cff);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+.top label{color:var(--m);font-size:13px}
+#q{
+  flex:1;min-width:130px;padding:10px 16px;border-radius:14px;border:0;
+  background:var(--bg);color:var(--t);font:inherit;
+  -webkit-appearance:none;appearance:none;
+  -webkit-user-select:text;user-select:text;
+  box-shadow:inset 4px 4px 10px var(--sd),inset -4px -4px 10px var(--sl);
+  transition:box-shadow .35s var(--ease),background .6s var(--ease),color .6s var(--ease);
+}
+#q::placeholder{color:var(--m)}
+#q:focus{outline:none;box-shadow:inset 6px 6px 14px var(--sd),inset -6px -6px 14px var(--sl)}
+#q:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+
+#lv{display:flex;gap:6px}
+#lv button{padding:6px 13px;font-size:13px}
+
+#chips{
+  display:flex;gap:10px;overflow-x:auto;padding:6px 4px 12px;flex:none;
+  scrollbar-width:none;scroll-behavior:smooth;
+}
+#chips::-webkit-scrollbar{display:none}
+#chips button{white-space:nowrap;padding:7px 16px;border-radius:999px;font-size:13px}
+
+#grid{
+  flex:1;overflow:auto;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:14px;align-content:start;padding:6px 8px 28px;
+  scroll-behavior:smooth;
+  scrollbar-width:thin;scrollbar-color:var(--sd) transparent;
+  animation:fadeIn .6s var(--ease-out) backwards;
+}
+#grid::-webkit-scrollbar{width:10px}
+#grid::-webkit-scrollbar-track{background:transparent}
+#grid::-webkit-scrollbar-thumb{background:var(--sd);border-radius:10px}
+
+.gc{
+  padding:20px 14px;text-align:center;cursor:pointer;border-radius:20px;
+  transition:transform .45s var(--ease-out),box-shadow .45s var(--ease),background .6s var(--ease);
+  animation:cardIn .32s var(--ease-out) backwards;
+}
+.gc:hover{
+  transform:translateY(-6px) scale(1.02);
+  box-shadow:13px 13px 28px var(--sd),-13px -13px 28px var(--sl);
+}
+.gc:active{
+  transform:translateY(-2px) scale(.985);
+  box-shadow:inset 6px 6px 14px var(--sd),inset -6px -6px 14px var(--sl);
+}
+.gc b{
+  display:block;font-size:38px;margin-bottom:8px;line-height:1;
+  transition:transform .5s var(--ease-spring);
+}
+.gc:hover b{transform:scale(1.16) rotate(-5deg)}
+.gc small{color:var(--m);font-size:12px}
+
+/* ============ STAGE ============ */
+#stage{position:fixed;inset:0;display:none;background:var(--bg);color:var(--t)}
+#stage.on{display:block;animation:stageIn .45s var(--ease-out) backwards}
+#view{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;touch-action:none}
+#view canvas{
+  display:block;border-radius:20px;
+  box-shadow:0 22px 45px rgba(35,45,85,.28),0 3px 10px rgba(35,45,85,.16);
+  animation:canvasIn .5s var(--ease-out) backwards;
+}
+#bk{
+  position:absolute;z-index:5;
+  top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));
+  border-radius:14px;
+  animation:slideInLeft .5s var(--ease-out) backwards;
+}
+#hud{
+  position:absolute;z-index:5;
+  top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));
+  padding:9px 18px;font-weight:700;border-radius:14px;pointer-events:none;
+  box-shadow:inset 4px 4px 10px var(--sd),inset -4px -4px 10px var(--sl);
+  animation:fadeIn .5s var(--ease-out) backwards;
+}
+#hud:empty{display:none}
+
+#ov{
+  position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
+  background:var(--ov);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  backdrop-filter:blur(10px) saturate(140%);
+}
+#ov.on{display:flex;animation:fadeIn .35s var(--ease) backwards}
+
+.pn{
+  padding:26px 30px;text-align:center;border-radius:26px;
+  animation:popIn .45s var(--ease-spring) backwards;
+}
+.pn h2{margin:0 0 10px;font-size:22px;letter-spacing:.2px}
+.pn p{margin:0 0 14px;color:var(--m)}
+
+/* ---- in-game panels built by games ---- */
+.ctr{display:flex;align-items:center;justify-content:center;height:100%;padding:10px}
+.bd{display:grid;grid-template-columns:repeat(3,min-content);gap:12px;margin:14px 0;justify-content:center}
+.bd button,.big{
+  width:min(19vh,84px);height:min(19vh,84px);font-size:min(10vh,42px);
+  padding:0;border-radius:22px;
+  display:flex;align-items:center;justify-content:center;
+}
+.bd button.w{
+  color:var(--ac);
+  box-shadow:inset 6px 6px 14px var(--sd),inset -6px -6px 14px var(--sl);
+}
+.vs{
+  font-size:min(13vh,54px);display:flex;gap:44px;justify-content:center;align-items:center;
+  margin:10px 0;
+}
+.row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ============ GATE ============ */
+#gate{
+  position:fixed;inset:0;z-index:99;display:none;align-items:center;justify-content:center;
+  padding:20px;text-align:center;color:var(--t);background:var(--bg);
+}
+#gate.on{display:flex;animation:fadeIn .4s var(--ease) backwards}
+#gate .pn{max-width:340px}
+#gate i{
+  display:block;font-size:56px;font-style:normal;margin-bottom:8px;
+  animation:rot 2.4s var(--ease) infinite;
+}
+#hint{color:var(--m);font-size:13px;margin-top:12px;min-height:16px}
+
+/* ============ KEYFRAMES ============ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes stageIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+@keyframes canvasIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+@keyframes rot{0%,25%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+  #gate i{animation:none}
+}
+</style></head>
+<body class="np">
+<div id="gate"><div class="pn gl"><i>📱</i><h2>Landscape required</h2><p>Turn your device sideways to play. We try to switch automatically.</p><button id="go" class="on">Go Landscape</button><div id="hint"></div></div></div>
+<div id="menu"><div class="top gl"><h1>Neu Arcade</h1><input id="q" type="search" placeholder="Search games" autocomplete="off" aria-label="Search games"><label>Bot level</label><div id="lv"></div></div><div id="chips"></div><div id="grid"></div></div>
+<div id="stage"><div id="view"></div><button id="bk">← Menu</button><div id="hud" class="gl"></div><div id="ov"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),ls=(k,v)=>{try{return v===undefined?localStorage.getItem(k):localStorage.setItem(k,v)}catch(e){}};
+const LV=["Easy","Medium","Hard","Expert"],GAMES=[],L=()=>innerWidth>innerHeight;
+const S={lv:Math.min(3,Math.max(0,+(ls("lv")??2)||0)),tag:"All",q:""};
+
+/* ===== BOTS: work with any game you add =====
+ Turn-based game: give addGame() a rules object {moves(s),play(s,m),turn(s),score(s,p),heur?(s,p)}
+   moves: legal moves | play: returns NEW state | turn: player to move | score: null while running, else 1 win / 0 draw / -1 loss for player p
+   heur: optional estimate in [-1,1] for unfinished positions. Then call BOT.pick(rules,state,level) to get a move.
+ Simultaneous game (like rock paper scissors): BOT.predict(opponentHistory,numMoves,level) predicts the opponent next move. */
+const BOT={
+ pick(R,s,lv){const ms=R.moves(s);if(Math.random()<[.45,.15,.03,0][lv])return ms[Math.random()*ms.length|0];
+  const me=R.turn(s),end=performance.now()+[80,150,300,600][lv];let hit=0,best=ms[0];
+  const mm=(s,d,a,b)=>{if(hit||performance.now()>end){hit=1;return 0}
+   const t=R.score(s,me);if(t!=null)return t*(1+d/50);if(!d)return R.heur?R.heur(s,me):0;
+   const mx=R.turn(s)==me;let v=mx?-9:9;
+   for(const m of R.moves(s)){const x=mm(R.play(s,m),d-1,a,b);if(mx){if(x>v)v=x;if(v>a)a=v}else{if(x<v)v=x;if(v<b)b=v}if(a>=b)break}
+   return v};
+  for(let D=1;D<=[1,3,5,12][lv]&&!hit;D++){let bv=-9,bl=[];
+   for(const m of ms){const x=mm(R.play(s,m),D-1,-9,9);if(hit)break;if(x>bv){bv=x;bl=[m]}else if(x==bv)bl.push(m)}
+   if(!hit)best=bl[Math.random()*bl.length|0]}
+  return best},
+ predict(h,n,lv){if(Math.random()<[.7,.35,.08,0][lv]||h.length<2)return Math.random()*n|0;
+  const sc=Array(n).fill(0),dc=lv>1?1:0;
+  h.forEach((m,i)=>sc[m]+=dc?.92**(h.length-1-i):1);
+  for(let k=1;k<=lv;k++)for(let i=k;i<h.length;i++)if(h.slice(i-k,i).join()==h.slice(-k).join())sc[h[i]]+=k*3*(dc?.95**(h.length-1-i):1);
+  const mx=Math.max(...sc),c=sc.flatMap((v,i)=>v>=mx-1e-9?[i]:[]);return c[Math.random()*c.length|0]}
+};
+
+/* ===== Platform ===== */
+const stage=$("#stage"),view=$("#view"),hud=$("#hud"),ov=$("#ov");let offs=[];
+const clean=()=>{offs.forEach(f=>f());offs=[];view.innerHTML="";ov.className="";ov.innerHTML="";hud.textContent=""};
+const exit=()=>{clean();stage.classList.remove("on");$("#menu").hidden=false;render()};
+$("#bk").onclick=exit;
+function play(g){clean();$("#menu").hidden=true;stage.classList.add("on");
+ const on=(t,e,f,o)=>{t.addEventListener(e,f,o);offs.push(()=>t.removeEventListener(e,f,o))};
+ const C={el:view,lv:S.lv,on,
+  t:(f,ms)=>{const i=setTimeout(f,ms);offs.push(()=>clearTimeout(i))},
+  run:fn=>{let last=performance.now(),id;const f=t=>{id=requestAnimationFrame(f);const dt=Math.min(.05,(t-last)/1000);last=t;if(L()&&!document.hidden)fn(dt)};id=requestAnimationFrame(f);offs.push(()=>cancelAnimationFrame(id))},
+  hud:s=>{s=String(s);if(hud.textContent!==s)hud.textContent=s},
+  over:(msg,sc)=>{let b="";if(sc!=null){const k="b_"+g.id,o=+ls(k)||0;if(sc>o){ls(k,sc);b="New best!"}else b="Best "+o}
+   ov.innerHTML=`<div class="pn gl"><h2>${msg}</h2><div style="color:var(--m);margin-bottom:14px">${b}</div><button id="ag" class="on">Play again</button> <button id="mn">Menu</button></div>`;ov.className="on";$("#ag").onclick=()=>play(g);$("#mn").onclick=exit},
+  canvas:(W,H)=>{const cv=document.createElement("canvas");cv.width=W;cv.height=H;view.appendChild(cv);
+   const fit=()=>{const k=Math.min(view.clientWidth/W,view.clientHeight/H);cv.style.width=W*k+"px";cv.style.height=H*k+"px"};fit();on(window,"resize",fit);return[cv,cv.getContext("2d")]},
+  gl:()=>{if(!window.THREE)throw Error("3D engine could not load");const T=THREE,r=new T.WebGLRenderer({antialias:true}),sc=new T.Scene(),cam=new T.PerspectiveCamera(60,1,.1,300);
+   r.setPixelRatio(Math.min(devicePixelRatio,2));view.appendChild(r.domElement);
+   const fit=()=>{const w=view.clientWidth,h=view.clientHeight;r.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()};fit();on(window,"resize",fit);offs.push(()=>r.dispose());return{r,sc,cam,T}}};
+ try{g.start(C)}catch(e){C.over("Could not start: "+e.message)}}
+
+/* addGame({id,name,icon,tags:[...],start(c){...}}) adds a game. It appears in search and filters automatically.
+   c gives: el, lv (bot level 0-3), on(target,event,fn), t(fn,ms), run(dt=>{}), hud(text), over(message,score), canvas(w,h), gl() */
+const addGame=g=>{GAMES.push(g);render()};
+function render(){
+ const tags=["All",...[...new Set(GAMES.flatMap(g=>g.tags))].sort()];if(!tags.includes(S.tag))S.tag="All";
+ $("#chips").innerHTML=tags.map(t=>`<button class="${t==S.tag?"on":""}">${t}</button>`).join("");
+ [...$("#chips").children].forEach(b=>b.onclick=()=>{S.tag=b.textContent;render()});
+ $("#lv").innerHTML=LV.map((l,i)=>`<button class="${i==S.lv?"on":""}">${l}</button>`).join("");
+ [...$("#lv").children].forEach((b,i)=>b.onclick=()=>{S.lv=i;ls("lv",i);render()});
+ const q=S.q.trim().toLowerCase(),list=GAMES.filter(g=>(S.tag=="All"||g.tags.includes(S.tag))&&(!q||(g.name+" "+g.tags.join(" ")).toLowerCase().includes(q)));
+ $("#grid").innerHTML=list.length?"":'<p style="color:var(--m)">No games match. Clear the search or pick All.</p>';
+ list.forEach(g=>{const d=document.createElement("div"),b=ls("b_"+g.id);d.className="gc gl";d.innerHTML=`<b>${g.icon}</b>${g.name}<br><small>${g.tags.join(" · ")}${b?" · Best "+b:""}</small>`;d.onclick=()=>play(g);$("#grid").appendChild(d)})}
+$("#q").oninput=e=>{S.q=e.target.value;render()};
+
+/* ===== Games ===== */
+{/* Tic Tac Toe: you are X, the bot is O. Starter alternates each round. */
+const W=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],
+ line=b=>W.find(([x,y,z])=>b[x]!=null&&b[x]===b[y]&&b[x]===b[z]),
+ R={moves:s=>s.b.flatMap((v,i)=>v==null?[i]:[]),play:(s,m)=>({b:s.b.map((v,i)=>i==m?s.t:v),t:1-s.t}),turn:s=>s.t,
+  score:(s,p)=>{const l=line(s.b);if(l)return s.b[l[0]]==p?1:-1;return s.b.includes(null)?null:0}};
+addGame({id:"ttt",name:"Tic Tac Toe",icon:"❌",tags:["Board","Strategy","Vs Bot"],rules:R,start(c){
+ let s,first=0,busy=0,sc=[0,0,0];
+ c.el.innerHTML='<div class="ctr"><div class="pn gl"><h2 id="st"></h2><div class="bd">'+"<button></button>".repeat(9)+'</div><div id="sb"></div></div></div>';
+ const cells=[...c.el.querySelectorAll(".bd button")],st=c.el.querySelector("#st"),sb=c.el.querySelector("#sb"),done=()=>R.score(s,0)!=null;
+ const draw=()=>{const l=line(s.b);cells.forEach((e,i)=>{e.textContent=["✕","◯"][s.b[i]]||"";e.className=l&&l.includes(i)?"w":"";e.disabled=s.b[i]!=null||done()});sb.textContent=`You ${sc[0]} · Draws ${sc[2]} · Bot ${sc[1]}`};
+ const next=()=>{draw();
+  if(done()){const r=R.score(s,0);sc[r>0?0:r<0?1:2]++;st.textContent=r>0?"You win!":r<0?"Bot wins":"Draw";draw();first=1-first;busy=1;c.t(reset,1700)}
+  else if(s.t){busy=1;st.textContent="Bot is thinking";c.t(()=>{s=R.play(s,BOT.pick(R,s,c.lv));busy=0;next()},450)}
+  else{busy=0;st.textContent="Your turn"}};
+ const reset=()=>{s={b:Array(9).fill(null),t:first};next()};
+ cells.forEach((e,i)=>e.onclick=()=>{if(busy||s.t||s.b[i]!=null||done())return;s=R.play(s,i);next()});
+ reset()}})}
+
+{/* Rock Paper Scissors: first to 5. The bot predicts your next move from your history (never peeks at the current one). */
+const E=["✊","✋","✌️"],N=["rock","paper","scissors"];
+addGame({id:"rps",name:"Rock Paper Scissors",icon:"✌️",tags:["Casual","Strategy","Vs Bot"],start(c){
+ let h=[],sc=[0,0],busy=0;
+ c.el.innerHTML='<div class="ctr"><div class="pn gl"><h2 id="st">First to 5 wins</h2><div class="vs"><span id="p">❔</span><span id="b">❔</span></div><div id="sb" style="margin-bottom:12px">You 0 – 0 Bot</div><div class="row">'+E.map((e,i)=>`<button class="big" data-i="${i}" aria-label="${N[i]}">${e}</button>`).join("")+"</div></div></div>";
+ const q=s=>c.el.querySelector(s);
+ c.el.querySelectorAll(".big").forEach(bt=>bt.onclick=()=>{if(busy)return;busy=1;
+  const i=+bt.dataset.i,b=(BOT.predict(h,3,c.lv)+1)%3;h.push(i);const d=(i-b+3)%3;
+  q("#p").textContent=E[i];q("#b").textContent=E[b];if(d==1)sc[0]++;if(d==2)sc[1]++;
+  q("#st").textContent=d?d==1?"You win the round":"Bot wins the round":"Draw";q("#sb").textContent=`You ${sc[0]} – ${sc[1]} Bot`;
+  if(sc[0]==5||sc[1]==5)c.t(()=>c.over(sc[0]==5?"You won the match!":"Bot won the match"),800);else c.t(()=>{busy=0},300)})}})}
+
+/* Square Bird: tap, click or press Space to flap through the gaps. */
+addGame({id:"bird",name:"Square Bird",icon:"🟨",tags:["Arcade","Casual"],start(c){
+ const[cv,g]=c.canvas(800,450),GY=400,GA=1500,FL=-440,GAP=150,PW=70,SP=175;
+ let y=200,vy=0,t=0,gx=0,pipes=[],score=0,st=0;
+ const flap=()=>{if(st==0)st=1;if(st==1)vy=FL},die=()=>{if(st==2)return;st=2;c.t(()=>c.over("Score "+score,score),600)};
+ c.hud(0);
+ c.on(c.el,"pointerdown",e=>{e.preventDefault();flap()});
+ c.on(document,"keydown",e=>{if((e.code=="Space"||e.code=="ArrowUp"||e.code=="KeyW")&&!e.repeat){e.preventDefault();flap()}});
+ c.run(dt=>{t+=dt;
+  if(st==1){vy+=GA*dt;y+=vy*dt;if(y<15){y=15;vy=0}
+   if(!pipes.length||pipes[pipes.length-1].x<540)pipes.push({x:820,h:70+Math.random()*110,p:0});
+   for(const p of pipes){p.x-=SP*dt;if(!p.p&&p.x+PW<185){p.p=1;score++;c.hud(score)}
+    if(215>p.x&&185<p.x+PW&&(y-15<p.h||y+15>p.h+GAP))die()}
+   pipes=pipes.filter(p=>p.x>-PW-10);gx=(gx+SP*dt)%40;if(y+15>=GY){y=GY-15;die()}}
+  else if(st==0)y=200+Math.sin(t*5)*8;
+  else{vy+=GA*dt;y=Math.min(GY-15,y+vy*dt)}
+  g.fillStyle="#6ec6ff";g.fillRect(0,0,800,450);
+  for(const p of pipes){g.fillStyle="#2ecc71";g.fillRect(p.x,0,PW,p.h);g.fillRect(p.x,p.h+GAP,PW,GY-p.h-GAP);g.fillStyle="#1e9e57";g.fillRect(p.x-4,p.h-22,PW+8,22);g.fillRect(p.x-4,p.h+GAP,PW+8,22)}
+  g.fillStyle="#d9b36c";g.fillRect(0,GY,800,50);g.fillStyle="#b98d45";for(let i=-40;i<800;i+=40)g.fillRect(i-gx,GY,20,8);
+  g.save();g.translate(200,y);g.rotate(Math.max(-.5,Math.min(1.1,vy/700)));g.fillStyle="#ffd43b";g.fillRect(-15,-15,30,30);g.fillStyle="#fff";g.fillRect(3,-9,10,10);g.fillStyle="#222";g.fillRect(8,-6,5,5);g.fillStyle="#ff6b3d";g.fillRect(10,4,12,7);g.restore();
+  if(st==0){g.fillStyle="#fff";g.font="bold 28px system-ui";g.textAlign="center";g.fillText("Tap to flap",400,110)}})}});
+
+/* Tap-Tap Shots: a power meter sweeps back and forth. Tap to shoot when the dotted arc meets the hoop. 3 misses end the game. */
+addGame({id:"shots",name:"Tap-Tap Shots",icon:"🏀",tags:["Sports","Arcade"],start(c){
+ const[cv,g]=c.canvas(800,450),GR=1300,CA=Math.cos(Math.PI/3.1),SA=Math.sin(Math.PI/3.1),BX=110,BY=340,R=12;
+ let hx,hy,b=null,fly=0,ph=0,score=0,lives=3,streak=0,msg="",mt=0;
+ const V=()=>860+210*Math.sin(ph),hoop=()=>{hx=410+Math.random()*280;hy=170+Math.random()*100},hd=()=>c.hud("🏀 "+score+"   "+"❤️".repeat(lives));
+ hoop();hd();
+ const shoot=()=>{if(fly)return;const v=V();b={x:BX,y:BY,vx:v*CA,vy:-v*SA,sc:0,rim:0};fly=1};
+ c.on(c.el,"pointerdown",e=>{e.preventDefault();shoot()});
+ c.on(document,"keydown",e=>{if(e.code=="Space"&&!e.repeat){e.preventDefault();shoot()}});
+ const end=()=>{fly=2;if(b.sc){streak++;const p=(b.rim?1:2)+Math.min(streak-1,3);score+=p;msg=(b.rim?"Nice":"Swish")+" +"+p}else{streak=0;lives--;msg="Miss"}mt=1;hd();
+  if(lives<1)c.t(()=>c.over("Score "+score,score),700);else c.t(()=>{hoop();b=null;fly=0},600)};
+ const step=h=>{b.vy+=GR*h;const py=b.y;b.x+=b.vx*h;b.y+=b.vy*h;
+  if(!b.sc&&py<hy&&b.y>=hy&&b.vy>0&&Math.abs(b.x-hx)<40)b.sc=1;
+  for(const px of[hx-44,hx+44]){const dx=b.x-px,dy=b.y-hy,d=Math.hypot(dx,dy);
+   if(d>0&&d<R+5){const nx=dx/d,ny=dy/d,vn=b.vx*nx+b.vy*ny;if(vn<0){b.vx-=1.55*vn*nx;b.vy-=1.55*vn*ny;b.rim=1}b.x=px+nx*(R+5);b.y=hy+ny*(R+5)}}
+  if(b.vx>0&&b.x+R>hx+48&&b.x-R<hx+56&&b.y>hy-80&&b.y<hy+8){b.x=hx+48-R;b.vx*=-.5;b.rim=1}
+  if(b.y>BY+60||b.x>850||(b.sc&&b.y>hy+55))end()};
+ c.run(dt=>{
+  if(!fly)ph+=dt*6.2832/Math.max(2.6,3.6-score*.04);
+  if(fly==1)for(let i=0;i<4&&fly==1;i++)step(dt/4);
+  if(mt>0)mt-=dt;
+  g.fillStyle="#1b1f4a";g.fillRect(0,0,800,450);g.fillStyle="#c97b3c";g.fillRect(0,BY+30,800,120);g.fillStyle="#e09a55";g.fillRect(0,BY+30,800,6);
+  if(!fly){const v=V();g.fillStyle="rgba(255,255,255,.75)";
+   for(let k=1;k<=26;k++){const t=k*.045,x=BX+v*CA*t,y=BY-v*SA*t+.5*GR*t*t;if(x>800||y>BY+30)break;g.beginPath();g.arc(x,y,3,0,7);g.fill()}
+   g.fillStyle="rgba(255,255,255,.25)";g.fillRect(30,BY+52,160,10);g.fillStyle="#7cf0ff";g.fillRect(30,BY+52,160*(v-650)/420,10)}
+  g.fillStyle="#fff";g.fillRect(hx+48,hy-80,8,88);g.strokeStyle="#ff5a36";g.lineWidth=5;g.beginPath();g.moveTo(hx-44,hy);g.lineTo(hx+48,hy);g.stroke();
+  g.strokeStyle="rgba(255,255,255,.8)";g.lineWidth=1.5;g.beginPath();for(let i=0;i<=4;i++){g.moveTo(hx-44+i*22,hy);g.lineTo(hx-30+i*15,hy+38)}g.moveTo(hx-37,hy+19);g.lineTo(hx+37,hy+19);g.stroke();
+  const p=b||{x:BX,y:BY};g.fillStyle="#ff8a2b";g.beginPath();g.arc(p.x,p.y,R,0,7);g.fill();g.strokeStyle="#5a2a0a";g.lineWidth=1.5;g.beginPath();g.moveTo(p.x-R,p.y);g.lineTo(p.x+R,p.y);g.moveTo(p.x,p.y-R);g.lineTo(p.x,p.y+R);g.stroke();
+  g.textAlign="center";if(mt>0){g.fillStyle="#fff";g.font="bold 30px system-ui";g.fillText(msg,hx,hy-100)}
+  if(!score&&lives==3){g.fillStyle="#fff";g.font="16px system-ui";g.fillText("Tap when the dotted arc meets the hoop",470,BY+62)}})}});
+
+/* Drift Boss: the car drives on its own. Tap to switch direction at every corner. Miss a corner and you fall. */
+addGame({id:"drift",name:"Drift Boss",icon:"🏎️",tags:["Racing","Arcade","3D"],start(c){
+ const{r,sc,cam,T}=c.gl();sc.background=new T.Color(0x20124d);sc.fog=new T.Fog(0x20124d,30,80);
+ sc.add(new T.HemisphereLight(0xffffff,0x6655aa,1));const dl=new T.DirectionalLight(0xffffff,.7);dl.position.set(-6,12,5);sc.add(dl);
+ const geo=new T.BoxGeometry(1,1,1),mt=[0xff5fa2,0x4dd7ff].map(k=>new T.MeshLambertMaterial({color:k})),car=new T.Mesh(geo,new T.MeshLambertMaterial({color:0xffd43b}));
+ car.scale.set(1.5,.6,.9);car.position.y=.3;sc.add(car);
+ const segs=[];let end={x:0,z:0},n=0;
+ const add=()=>{const d=n%2,len=6+Math.random()*8,s={x0:end.x,z0:end.z};
+  end=d?{x:end.x,z:end.z-len}:{x:end.x+len,z:end.z};
+  s.a=Math.min(s.x0,end.x)-1.5;s.b=Math.max(s.x0,end.x)+1.5;s.c=Math.min(s.z0,end.z)-1.5;s.d=Math.max(s.z0,end.z)+1.5;
+  const m=new T.Mesh(geo,mt[d]);m.scale.set(s.b-s.a,.4,s.d-s.c);m.position.set((s.a+s.b)/2,-.2-d*.02,(s.c+s.d)/2);sc.add(m);s.m=m;segs.push(s);n++};
+ let dir=0,go=0,dead=0,dist=0,vy=0;const tg=new T.Vector3(),cp=new T.Vector3();
+ for(let i=0;i<14;i++)add();
+ const turn=()=>{if(!go)go=1;else if(!dead)dir^=1};
+ c.on(c.el,"pointerdown",turn);
+ c.on(document,"keydown",e=>{if(!e.repeat&&(e.code=="Space"||e.code.startsWith("Arrow"))){e.preventDefault();turn()}});
+ cam.position.set(-9,11,9);c.hud("Tap to start");
+ c.run(dt=>{const p=car.position;
+  if(go&&dead<2){const v=Math.min(15,7+dist*.003);dist+=v*dt;if(dir)p.z-=v*dt;else p.x+=v*dt;
+   if(!dead&&!segs.some(s=>p.x>s.a&&p.x<s.b&&p.z>s.c&&p.z<s.d))dead=1;
+   if(dead){vy+=30*dt;p.y-=vy*dt;if(p.y<-9){dead=2;const q=dist/3|0;c.t(()=>c.over("Score "+q,q),300)}}
+   while(segs.length<14)add();
+   while(segs.length>4&&(p.x>segs[0].b+12||p.z<segs[0].c-12))sc.remove(segs.shift().m);
+   c.hud(dist/3|0)}
+  car.rotation.y+=((dir?Math.PI/2:0)-car.rotation.y)*Math.min(1,dt*14);
+  tg.set(p.x-9,11,p.z+9);cam.position.lerp(tg,Math.min(1,dt*4));cp.set(p.x,0,p.z);cam.lookAt(cp);r.render(sc,cam)})}});
+
+/* Snow Rider 3D: steer left and right (arrow keys, A/D, or hold the left/right half of the screen). Dodge trees, grab gifts. */
+addGame({id:"snow",name:"Snow Rider 3D",icon:"🛷",tags:["Adventure","Racing","3D"],start(c){
+ const{r,sc,cam,T}=c.gl();sc.background=new T.Color(0xbfe3ff);sc.fog=new T.Fog(0xbfe3ff,25,85);
+ sc.add(new T.HemisphereLight(0xffffff,0x9db4d6,1));const dl=new T.DirectionalLight(0xffffff,.6);dl.position.set(5,10,6);sc.add(dl);
+ const M=k=>new T.MeshLambertMaterial({color:k}),gr=new T.Mesh(new T.PlaneGeometry(44,320),M(0xf4faff));gr.rotation.x=-Math.PI/2;gr.position.z=-130;sc.add(gr);
+ const GC=new T.ConeGeometry(1.1,3.2,8),GT=new T.CylinderGeometry(.2,.25,1,6),GB=new T.BoxGeometry(.9,.9,.9),GS=new T.BoxGeometry(5,.02,.25),mg=M(0x1f8a4c),mw=M(0x6b4423),mr=M(0xe63946),ms=M(0xd5e6f5);
+ const sled=new T.Group(),a=new T.Mesh(new T.BoxGeometry(1,.2,1.9),M(0x7a4a2b)),bo=new T.Mesh(new T.BoxGeometry(.5,.8,.4),M(0x3a86ff)),hd=new T.Mesh(new T.SphereGeometry(.26,10,8),M(0xffd166));
+ a.position.y=.12;bo.position.y=.6;hd.position.y=1.2;sled.add(a,bo,hd);sc.add(sled);
+ let ob=[],x=0,vx=0,v=14,dist=0,acc=0,tm=0,gifts=0,dead=0,kl=0,kr=0,pt=0;
+ const rn=k=>(Math.random()*2-1)*k,sp=(m,t,px)=>{m.position.x=px;m.position.z=-90;sc.add(m);ob.push({m,t})};
+ const row=()=>{const d=Math.min(.75,.45+tm*.004);
+  for(let k=0;k<2;k++)if(Math.random()<d){const g=new T.Group(),u=new T.Mesh(GC,mg),w=new T.Mesh(GT,mw);u.position.y=2.4;w.position.y=.5;g.add(u,w);sp(g,1,rn(9.5))}
+  if(Math.random()<.22){const m=new T.Mesh(GB,mr);m.position.y=.6;sp(m,2,rn(8))}
+  const s=new T.Mesh(GS,ms);s.position.y=.02;sp(s,0,rn(8))};
+ const inp=()=>pt||kr-kl,isL=e=>e.code=="ArrowLeft"||e.code=="KeyA",isR=e=>e.code=="ArrowRight"||e.code=="KeyD";
+ c.on(c.el,"pointerdown",e=>{pt=e.clientX<innerWidth/2?-1:1});
+ c.on(window,"pointerup",()=>{pt=0});c.on(window,"pointercancel",()=>{pt=0});
+ c.on(document,"keydown",e=>{if(isL(e))kl=1;if(isR(e))kr=1});
+ c.on(document,"keyup",e=>{if(isL(e))kl=0;if(isR(e))kr=0});
+ c.run(dt=>{
+  if(!dead){tm+=dt;v=Math.min(40,14+tm*.45);dist+=v*dt;acc+=v*dt;
+   const gap=Math.max(3.2,7-tm*.03);while(acc>=gap){acc-=gap;row()}
+   vx+=(inp()*10-vx)*Math.min(1,dt*8);x=Math.max(-8.5,Math.min(8.5,x+vx*dt));
+   ob=ob.filter(o=>{const p=o.m.position;p.z+=v*dt;if(o.t==2)o.m.rotation.y+=dt*3;const dx=p.x-x;
+    if(o.t&&dx*dx+p.z*p.z<(o.t==1?1.6:2)){if(o.t==1)dead=1;else{gifts++;sc.remove(o.m);return 0}}
+    if(p.z>8){sc.remove(o.m);return 0}return 1});
+   sled.position.x=x;sled.rotation.z=-vx*.04;sled.rotation.y=-vx*.03;
+   c.hud((dist/3|0)+gifts*10+"   🎁 "+gifts);
+   if(dead){const q=(dist/3|0)+gifts*10;sled.rotation.z=1.2;c.t(()=>c.over("Crashed! Score "+q,q),500)}}
+  cam.position.set(x*.6,4.2,8);cam.lookAt(x*.6,.8,-10);r.render(sc,cam)})}});
+
+/* ===== Landscape gate ===== */
+const chk=()=>{document.body.classList.toggle("np",!L());$("#gate").classList.toggle("on",!L())};
+async function land(){
+ try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen()}catch(e){}
+ try{await screen.orientation.lock("landscape")}catch(e){}
+ setTimeout(()=>{chk();$("#hint").textContent=L()?"":"Automatic rotation was blocked. Unlock screen rotation and turn your device sideways, or make the window wider than it is tall."},400)}
+$("#go").onclick=land;
+addEventListener("resize",chk);addEventListener("orientationchange",()=>setTimeout(chk,250));
+try{screen.orientation.lock("landscape").catch(()=>{})}catch(e){}
+chk();render();
+</script>
+</body></html>
